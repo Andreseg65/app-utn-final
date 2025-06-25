@@ -30,6 +30,15 @@ select {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.search-input {
+  max-width: 400px;
+  display: block;
+  margin: 1rem auto;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 input,
 select {
   padding: 0.75rem;

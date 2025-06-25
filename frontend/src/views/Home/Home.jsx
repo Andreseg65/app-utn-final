@@ -3,6 +3,9 @@ import { Layout } from "../../components/Layout"
 import { Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import { FormUpdate } from "../../components/FormUpdate"
+import axios from "axios"
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
 const Home = () => {
   const [products, setProducts] = useState([])
@@ -14,7 +17,7 @@ const Home = () => {
 
   const fetchingProducts = async () => {
     try {
-      const response = await fetch("http://localhost:1234/api/products")
+      const response = await fetch(`${BACKEND_URL}/api/products/search?name=${searchTerm}`)
 
       if (!response.ok) {
         setError("Sesión terminada, vuelve a loguearte.")
@@ -34,10 +37,34 @@ const Home = () => {
     fetchingProducts()
   }, [])
 
+  const [searchTerm, setSearchTerm] = useState("")
+
+  const handleSearch = async (e) => {
+    const value = e.target.value
+    setSearchTerm(value)
+  
+    if (value === "") {
+      fetchingProducts()
+      return
+    }
+  
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/products/search?name=${value}`)
+      if (response.ok) {
+        const result = await response.json()
+        setProducts(result.data)
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Error al buscar productos")
+    }
+  }
+  
+
   const handleDelete = async (product) => {
     if (confirm("Esta seguro que quieres borrar el producto?")) {
       try {
-        const response = await fetch(`http://localhost:1234/api/products/${product._id}`, {
+        const response = await fetch(`${BACKEND_URL}/api/products/${product._id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -64,6 +91,13 @@ const Home = () => {
   return (
     <Layout>
       <h1>Lista de productos</h1>
+      <input
+  type="text"
+  className="search-input"
+  placeholder="Buscar productos por nombre..."
+  value={searchTerm}
+  onChange={handleSearch}
+/>
       {user && <p>Bienvenido, {user.email}</p>}
       {error && <>
         <div className="error-home">
